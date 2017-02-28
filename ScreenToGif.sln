@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenToGif", "ScreenToGif\ScreenToGif.csproj", "{EC4B9F54-7C0E-4EB3-8F97-C1C0379F9BA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenToGifGUI", "ScreenToGifGUI\ScreenToGifGUI.csproj", "{F206BE36-BD65-4AAA-9520-C4EDB1FFFB77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC4B9F54-7C0E-4EB3-8F97-C1C0379F9BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC4B9F54-7C0E-4EB3-8F97-C1C0379F9BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC4B9F54-7C0E-4EB3-8F97-C1C0379F9BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC4B9F54-7C0E-4EB3-8F97-C1C0379F9BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F206BE36-BD65-4AAA-9520-C4EDB1FFFB77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F206BE36-BD65-4AAA-9520-C4EDB1FFFB77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F206BE36-BD65-4AAA-9520-C4EDB1FFFB77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F206BE36-BD65-4AAA-9520-C4EDB1FFFB77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
