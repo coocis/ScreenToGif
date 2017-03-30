@@ -13,10 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Drawing;
 using Size = System.Drawing.Size;
-
-using ScreenToGif;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using System.Drawing.Imaging;
 using System.Windows.Interop;
+using System.IO;
+using ScreenToGif;
+using ScreenToGifGUI.ViewModels;
+using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
+using Keys = System.Windows.Forms.Keys;
 
 namespace ScreenToGifGUI
 {
@@ -25,6 +29,7 @@ namespace ScreenToGifGUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowViewModel _viewModel;
         private STGProcessor _stg;
         private Rectangle _targetBorder;
         private Bitmap _currentScreenShot;
@@ -33,9 +38,14 @@ namespace ScreenToGifGUI
         public MainWindow()
         {
             InitializeComponent();
+
+            _viewModel = DataContext as MainWindowViewModel;
+            _viewModel.Fps = 10;
+            _viewModel.HasMouse = false;
             _stg = new STGProcessor();
             
         }
+
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -44,16 +54,9 @@ namespace ScreenToGifGUI
             //if (hWndSource != null)
                 hWndSource.AddHook(WndProc);
 
-            GlobalHotKey.Register(_hwnd,
-                GlobalHotKey.Modifier.Control,
-                GlobalHotKey.Modifier.Alt,
-                System.Windows.Forms.Keys.X,
-                ShowMaskWindow);
-            GlobalHotKey.Register(_hwnd,
-                GlobalHotKey.Modifier.Control,
-                GlobalHotKey.Modifier.Alt,
-                System.Windows.Forms.Keys.C,
-                StartOrStopRecord);
+            List<Keys> validKeys = new DataProvider().GetValidValuesFromKeys().ToList();
+            setAreaHotkeyComboBox.SelectedIndex = validKeys.IndexOf(Keys.X);
+            recordHotkeyComboBox.SelectedIndex = validKeys.IndexOf(Keys.C);
         }
 
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wideParam, IntPtr longParam, ref bool handled)
@@ -73,7 +76,7 @@ namespace ScreenToGifGUI
 
         private void ScreenShot(Rectangle rect)
         {
-            Bitmap bitmap = new Bitmap(rect.Width, rect.Height, 
+            Bitmap bitmap = new Bitmap(rect.Width, rect.Height,
                 System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             Graphics g = Graphics.FromImage(bitmap);
             g.DrawImage(_currentScreenShot,
@@ -81,9 +84,19 @@ namespace ScreenToGifGUI
                 rect,
                 GraphicsUnit.Pixel);
             g.Dispose();
-            bitmap.Save("screenshot.jpg", ImageFormat.Jpeg);
-        }
 
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "*JPG文件(*.jpg)|*.jpg";
+            sfd.AddExtension = false;
+            sfd.FileName = "screenshot";
+            sfd.RestoreDirectory = true;
+
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                bitmap.Save(sfd.FileName, ImageFormat.Jpeg);
+            }
+        }
+        
         private void SetBorder(Rectangle rect)
         {
             _targetBorder = rect;
@@ -94,23 +107,29 @@ namespace ScreenToGifGUI
             _targetBorder = new Rectangle(0, 0,
                 (int)SystemParameters.PrimaryScreenWidth,
                 (int)SystemParameters.PrimaryScreenHeight);
-            _currentScreenShot = _stg.ScreenShot_Full(false);
+            _currentScreenShot = _stg.ScreenShot_Full(_viewModel.HasMouse);
             MaskWindow mw = new MaskWindow(_currentScreenShot);
             mw.ScreenShotCallback += ScreenShot;
-            mw.SetBorderCallback += SetBorder;
+            mw.SetAreaCallback += SetBorder;
             mw.Show();
         }
 
         private void StartRecord()
         {
-            _stg.TargetRect = _targetBorder;
+            if (_targetBorder == default(Rectangle))
+            {
+                return;
+            }
+            _stg.TargetArea = _targetBorder;
+            _stg.Fps = _viewModel.Fps;
+            _stg.HasMouse = _viewModel.HasMouse;
             _stg.StartRecord();
         }
 
         private void StopRecord()
         {
             _stg.StopRecord();
-            ModifyWindow mw = new ModifyWindow(_stg.Jpgs, _stg.Fps);
+            ModifyWindow mw = new ModifyWindow(_stg.Jpgs, _stg.Fps, _targetBorder.Width, _targetBorder.Height);
             mw.Show();
         }
 
@@ -123,6 +142,51 @@ namespace ScreenToGifGUI
             else
             {
                 StartRecord();
+            }
+        }
+
+        private void openGifButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "*GIF文件(*.gif)|*.gif";
+            ofd.RestoreDirectory = true;
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                STGProcessor stg = new STGProcessor();
+                stg.GifFileName = ofd.FileName;
+                stg.GifToJpgs();
+                ModifyWindow mw = new ModifyWindow(stg.Jpgs, stg.Fps, stg.Width, stg.Height);
+                mw.Show();
+            }
+        }
+
+        private void setAreaHotkeyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            GlobalHotKey.Unregister(_hwnd, ShowMaskWindow);
+            bool success = false;
+            success = GlobalHotKey.Register(_hwnd,
+                GlobalHotKey.Modifier.Control,
+                GlobalHotKey.Modifier.Alt,
+                (Keys)Enum.Parse(typeof(Keys), e.AddedItems[0].ToString(), true),
+                ShowMaskWindow);
+            if (!success)
+            {
+                MessageBox.Show("This hotkey has been occupied! Please select another one.");
+            }
+        }
+
+        private void recordHotkeyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            GlobalHotKey.Unregister(_hwnd, StartOrStopRecord);
+            bool success = false;
+            success = GlobalHotKey.Register(_hwnd,
+                GlobalHotKey.Modifier.Control,
+                GlobalHotKey.Modifier.Alt,
+                (Keys)Enum.Parse(typeof(Keys), e.AddedItems[0].ToString(), true),
+                StartOrStopRecord);
+            if (!success)
+            {
+                MessageBox.Show("This hotkey has been occupied! Please select another one.");
             }
         }
     }

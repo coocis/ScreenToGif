@@ -8,10 +8,10 @@
         mc:Ignorable="d"
         Title="Modify" Height="743.5" Width="1012" KeyUp="Window_KeyUp" PreviewKeyDown="Window_PreviewKeyDown">
     <Window.DataContext>
-        <ViewModels:ModifyWindowViewModel/>
+        <ViewModels:ModifyWindowViewModel Width="560" Height="370"/>
     </Window.DataContext>
     <Grid>
-        <ScrollViewer x:Name="imagesScrollViewer" Margin="10,463,10,10" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="imagesScrollViewer" Margin="10,0,10,10" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" VerticalAlignment="Bottom" Height="200">
             <ItemsControl x:Name="imageItems" ItemsSource="{Binding Images}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -25,9 +25,23 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
         </ScrollViewer>
-        <Image x:Name="mainImage" Margin="208,84,221,255" Source="{Binding MainImage}"/>
+        <Image x:Name="mainImage" Margin="208,84,221,255" Source="{Binding MainImage}" Width="{Binding Width, Mode=OneWay}" Height="{Binding Height, Mode=OneWay}"/>
         <Grid HorizontalAlignment="Left" Height="79" VerticalAlignment="Top" Width="1004">
-            <Button x:Name="okButton" Content="OK" HorizontalAlignment="Left" Margin="23,10,0,0" VerticalAlignment="Top" Width="75" Height="59" Click="okButton_Click"/>
+            <Button x:Name="okButton" Content="OK" HorizontalAlignment="Left" Margin="23,10,0,0" VerticalAlignment="Top" Width="75" Height="59" Click="okButton_Click" IsDefault="True"/>
+            <Button x:Name="deleteAllForwardButton" Content="Delete All &#xa; Forward" HorizontalAlignment="Left" Margin="133,10,0,0" VerticalAlignment="Top" Width="75" Height="59" Click="deleteAllForwardButton_Click"/>
+            <Button x:Name="deleteAllBackwardButton" Content="Delete All &#xA;Backward" HorizontalAlignment="Left" Margin="213,10,0,0" VerticalAlignment="Top" Width="75" Height="59" Click="deleteAllBackwardButton_Click"/>
+            <Button x:Name="restoreAllForwardButton" Content="Restore All &#xA;  Forward" HorizontalAlignment="Left" Margin="293,10,0,0" VerticalAlignment="Top" Width="76" Height="59" Click="restoreAllForwardButton_Click"/>
+            <Button x:Name="restoreAllBackwardButton" Content="Restore All &#xA; Backward" HorizontalAlignment="Left" Margin="374,10,0,0" VerticalAlignment="Top" Width="75" Height="59" Click="restoreAllBackwardButton_Click"/>
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="484,10,0,0" TextWrapping="Wrap" Text="Size:" VerticalAlignment="Top" Visibility="Hidden"/>
+            <TextBlock x:Name="totalSizeTextBlock" HorizontalAlignment="Left" Margin="515,10,0,0" TextWrapping="Wrap" Text="{Binding TotalSize}" VerticalAlignment="Top" Width="104" Visibility="Hidden"/>
+            <CheckBox x:Name="respectRatioCheckBox" Content="Respect Ratio" HorizontalAlignment="Left" Margin="471,15,0,0" VerticalAlignment="Top" IsChecked="True" IsEnabled="False"/>
+            <RadioButton x:Name="widthRadioButton" Content="Width:" HorizontalAlignment="Left" Margin="471,35,0,0" VerticalAlignment="Top" IsChecked="True" GroupName="resolution"/>
+            <RadioButton x:Name="heightRadioButton" Content="Height:" HorizontalAlignment="Left" Margin="471,54,0,0" VerticalAlignment="Top" GroupName="resolution"/>
+            <TextBox x:Name="widthTextBox" HorizontalAlignment="Left" Margin="543,33,0,28" TextWrapping="Wrap" Text="{Binding Width, Mode=TwoWay, StringFormat=\{0:D\}, UpdateSourceTrigger=PropertyChanged}" Width="120" IsEnabled="{Binding IsChecked, ElementName=widthRadioButton}"/>
+            <TextBox x:Name="heightTextBox" HorizontalAlignment="Left" Height="18" Margin="543,55,0,0" TextWrapping="Wrap" Text="{Binding Height, Mode=TwoWay, StringFormat=\{0:D\}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="120" IsEnabled="{Binding IsChecked, ElementName=heightRadioButton}"/>
+            <CheckBox x:Name="reverseCheckBox" Content="Reverse" HorizontalAlignment="Left" Margin="689,14,0,0" VerticalAlignment="Top" IsChecked="{Binding IsReverse}"/>
+            <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="689,34,0,0" TextWrapping="Wrap" Text="FPS: " VerticalAlignment="Top"/>
+            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="18" Margin="721,33,0,0" TextWrapping="Wrap" Text="{Binding Fps, Mode=TwoWay, StringFormat=\{0:D\}, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="120"/>
         </Grid>
 
     </Grid>

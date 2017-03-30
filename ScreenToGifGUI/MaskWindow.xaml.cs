@@ -26,9 +26,9 @@ namespace ScreenToGifGUI
     public partial class MaskWindow : Window
     {
         public delegate void ScreenShotHandler(Rectangle rect);
-        public delegate void SetBorderHandler(Rectangle rect);
+        public delegate void SetAreaHandler(Rectangle rect);
         public event ScreenShotHandler ScreenShotCallback;
-        public event SetBorderHandler SetBorderCallback;
+        public event SetAreaHandler SetAreaCallback;
 
         private Point _selectStartPoint;
         private double _x, _y, _width, _height;
@@ -42,6 +42,7 @@ namespace ScreenToGifGUI
             
             MemoryStream ms = new MemoryStream();
             fullScreenShot.Save(ms, ImageFormat.Bmp);
+            fullScreenShot.Dispose();
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
             bi.StreamSource = ms;
@@ -51,6 +52,10 @@ namespace ScreenToGifGUI
             {
                 _screenArea = Rectangle.Union(_screenArea, screen.Bounds);
             }
+            window.Width = _screenArea.Width;
+            window.Height = _screenArea.Height;
+            window.Left = 0;
+            window.Top = 0;
         }
 
         private void UpdateSelectBorder()
@@ -83,16 +88,15 @@ namespace ScreenToGifGUI
         private void okButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
-            if (SetBorderCallback != null)
+            if (SetAreaCallback != null)
             {
-                SetBorderCallback(new Rectangle((int)_x, (int)_y, (int)_width, (int)_height));
+                SetAreaCallback(new Rectangle((int)_x, (int)_y, (int)_width, (int)_height));
             }
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            backgroudImage.Source = null;
-            //GC.Collect();
+            GC.Collect();
         }
 
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

@@ -27,22 +27,25 @@ namespace ScreenToGifGUI
         [DllImport("user32.dll")]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
-        public static void Register(IntPtr hwnd, Keys key, HotkeyHandler callback)
+        public static bool Register(IntPtr hwnd, Keys key, HotkeyHandler callback)
         {
             bool b = RegisterHotKey(hwnd, ++_idCount, 0, (uint)key);
             _callbacks.Add(_idCount, callback);
+            return b;
         }
 
-        public static void Register(IntPtr hwnd, Modifier modifier, Keys key, HotkeyHandler callback)
+        public static bool Register(IntPtr hwnd, Modifier modifier, Keys key, HotkeyHandler callback)
         {
             bool b = RegisterHotKey(hwnd, ++_idCount, (uint)modifier, (uint)key);
             _callbacks.Add(_idCount, callback);
+            return b;
         }
 
-        public static void Register(IntPtr hwnd, Modifier modifier1, Modifier modifier2, Keys key, HotkeyHandler callback)
+        public static bool Register(IntPtr hwnd, Modifier modifier1, Modifier modifier2, Keys key, HotkeyHandler callback)
         {
             bool b = RegisterHotKey(hwnd, ++_idCount, (uint)modifier1 + (uint)modifier2, (uint)key);
             _callbacks.Add(_idCount, callback);
+            return b;
         }
 
         public static void Unregister(IntPtr hwnd, HotkeyHandler callback)
