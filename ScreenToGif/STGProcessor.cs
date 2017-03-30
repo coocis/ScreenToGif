@@ -314,19 +314,19 @@ namespace ScreenToGif
         private List<byte[]> SeperateBytesToJpgs(List<byte> data)
         {
             List<byte[]> results = new List<byte[]>();
-            byte[] start = new byte[] { 0xff, 0xd8, 0xff, 0xe0 };
+            byte[] head = new byte[] { 0xff, 0xd8 };
             int startIndex = 0;
             int matchIndex = 0;
             //不匹配第一个JPG的开头
             for (int i = 1; i < data.Count; i++)
             {
-                if (data[i] == start[matchIndex])
+                if (data[i] == head[matchIndex])
                 {
                     matchIndex++;
-                    if (matchIndex == 4)
+                    if (matchIndex == head.Length)
                     {
-                        results.Add(data.GetRange(startIndex, i - 4 - startIndex).ToArray());
-                        startIndex = i - 3;
+                        results.Add(data.GetRange(startIndex, i - head.Length - startIndex).ToArray());
+                        startIndex = i - (head.Length - 1);
                         matchIndex = 0;
                     }
                 }
