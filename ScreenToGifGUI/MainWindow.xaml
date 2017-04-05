@@ -26,10 +26,10 @@
         <CheckBox x:Name="mouseCheckBox" Content="Has mouse" HorizontalAlignment="Left" Margin="54,49,0,0" VerticalAlignment="Top" IsChecked="{Binding HasMouse}"/>
         <Button x:Name="openGifButton" Content="Open GIF" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="66,174,0,0" Click="openGifButton_Click" Grid.ColumnSpan="2"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="27,76,0,0" TextWrapping="Wrap" Text="Set Area:" VerticalAlignment="Top"/>
-        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="56,96,0,0" TextWrapping="Wrap" Text="Ctrl + Shift + " VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="56,96,0,0" TextWrapping="Wrap" Text="Ctrl + Alt + " VerticalAlignment="Top"/>
         <ComboBox x:Name="setAreaHotkeyComboBox" HorizontalAlignment="Left" Margin="139,96,0,0" VerticalAlignment="Top" Width="77" DataContext="{Binding Source={StaticResource KeysEnumType}}" ItemsSource="{Binding Mode=OneWay}" SelectionChanged="setAreaHotkeyComboBox_SelectionChanged" Grid.ColumnSpan="2"/>
         <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="27,116,0,0" TextWrapping="Wrap" Text="Start/Stop Record" VerticalAlignment="Top"/>
-        <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="56,136,0,0" TextWrapping="Wrap" Text="Ctrl + Shift + " VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="56,136,0,0" TextWrapping="Wrap" Text="Ctrl + Alt + " VerticalAlignment="Top"/>
         <ComboBox x:Name="recordHotkeyComboBox" HorizontalAlignment="Left" Margin="139,136,0,0" VerticalAlignment="Top" Width="77" SelectionChanged="recordHotkeyComboBox_SelectionChanged" DataContext="{Binding Source={StaticResource KeysEnumType}}" ItemsSource="{Binding Mode=OneWay}" Grid.ColumnSpan="2"/>
         <TextBox x:Name="githubTextBox" IsReadOnly="True" HorizontalAlignment="Left" Height="18" Margin="0,293,0,0" TextWrapping="Wrap" Text="https://github.com/coocis/ScreenToGif" VerticalAlignment="Top" Width="253" Grid.ColumnSpan="2" BorderThickness="0,1,0,0"/>
     </Grid>

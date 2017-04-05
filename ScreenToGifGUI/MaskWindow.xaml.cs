@@ -42,7 +42,6 @@ namespace ScreenToGifGUI
             
             MemoryStream ms = new MemoryStream();
             fullScreenShot.Save(ms, ImageFormat.Bmp);
-            fullScreenShot.Dispose();
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
             bi.StreamSource = ms;
