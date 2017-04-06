@@ -42,6 +42,7 @@ namespace ScreenToGifGUI
             
             MemoryStream ms = new MemoryStream();
             fullScreenShot.Save(ms, ImageFormat.Bmp);
+            fullScreenShot.Dispose();
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
             bi.StreamSource = ms;
@@ -81,6 +82,10 @@ namespace ScreenToGifGUI
             if (ScreenShotCallback != null)
             {
                 ScreenShotCallback(new Rectangle((int)_x, (int)_y, (int)_width, (int)_height));
+            }
+            if (SetAreaCallback != null)
+            {
+                SetAreaCallback(new Rectangle((int)_x, (int)_y, (int)_width, (int)_height));
             }
         }
 

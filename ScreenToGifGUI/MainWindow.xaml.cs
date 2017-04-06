@@ -108,7 +108,7 @@ namespace ScreenToGifGUI
                 (int)SystemParameters.PrimaryScreenWidth,
                 (int)SystemParameters.PrimaryScreenHeight);
             _currentScreenShot = _stg.ScreenShot_Full(_viewModel.HasMouse);
-            MaskWindow mw = new MaskWindow(_currentScreenShot);
+            MaskWindow mw = new MaskWindow(new Bitmap(_currentScreenShot));
             mw.ScreenShotCallback += ScreenShot;
             mw.SetAreaCallback += SetBorder;
             mw.Show();
