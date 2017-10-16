@@ -13,6 +13,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using ImageMagick;
 
+
 namespace ScreenToGif
 {
     public class STGProcessor
@@ -26,6 +27,7 @@ namespace ScreenToGif
         private string _gifFileName = "gif";
         private bool _isPreserveAspectRatio = true;
         private bool _isRecording;
+        private bool _saveScreenShotToLocal;
 
         private Process _ffmpeg = new Process();
         private ProcessStartInfo _startInfo = new ProcessStartInfo();
@@ -144,6 +146,19 @@ namespace ScreenToGif
             }
         }
 
+        public bool SaveScreenShotToLocal
+        {
+            get
+            {
+                return _saveScreenShotToLocal;
+            }
+
+            set
+            {
+                _saveScreenShotToLocal = value;
+            }
+        }
+
         public STGProcessor()
         {
             _ffmpeg.StartInfo = _startInfo;
@@ -154,6 +169,12 @@ namespace ScreenToGif
             _startInfo.RedirectStandardError = true;
             _startInfo.RedirectStandardInput = true;
             IsRecording = false;
+            SaveScreenShotToLocal = false;
+            if (Directory.Exists(_tempFilesDirectory))
+            {
+                ClearFolder(_tempFilesDirectory);
+            }
+            Directory.CreateDirectory(_tempFilesDirectory);
             foreach (Screen screen in Screen.AllScreens)
             {
                 TargetArea = Rectangle.Union(TargetArea, screen.Bounds);
@@ -177,16 +198,23 @@ namespace ScreenToGif
             }
             if (hasMouse)
             {
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    Rectangle cursor = new Rectangle(Control.MousePosition, new Size(18, 13));
-                    Cursors.Default.Draw(g, cursor);
-                }
+                int correctX = Control.MousePosition.X - rect.Left;
+                int correctY = Control.MousePosition.Y - rect.Top;
+                Graphics g = Graphics.FromImage(bmp);
+                Rectangle cursor = new Rectangle(
+                    new Point(correctX, correctY),
+                    Cursor.Current.Size);
+                Cursors.Default.Draw(g, cursor);
             }
 
             return bmp;
         }
 
+        /// <summary>
+        /// 全屏截图
+        /// </summary>
+        /// <param name="hasMouse">是否有鼠标</param>
+        /// <returns>截得的图片</returns>
         public Bitmap ScreenShot_Full(bool hasMouse = true)
         {
             Rectangle _screenArea = new Rectangle();
@@ -221,11 +249,7 @@ namespace ScreenToGif
 
         public void JpgsToGif()
         {
-            if (!Directory.Exists(@"temp"))
-            {
-                Directory.CreateDirectory(@"temp");
-            }
-            MagickNET.SetTempDirectory(@"temp");
+            MagickNET.SetTempDirectory(_tempFilesDirectory);
             using (MagickImageCollection mic = new MagickImageCollection())
             {
                 foreach (var image in Jpgs)
@@ -292,6 +316,40 @@ namespace ScreenToGif
             _ffmpeg.WaitForExit();
         }
 
+        public void JpgsToVideo()
+        {
+            File.Delete(GifFileName);
+
+            if (SaveScreenShotToLocal)
+            {
+                _startInfo.Arguments = string.Format("-f image2 -i {0} -vcodec libx264 -vf \"scale = trunc(iw / 2) * 2:trunc(ih / 2) * 2\" {1}",
+                    _tempFilesDirectory + @"\%d.jpg",
+                    GifFileName);
+                _ffmpeg.Start();
+            }
+            else
+            {
+                //_startInfo.Arguments = string.Format("-f image2pipe -framerate {0} -i - -vf scale={1}*{2} -pix_fmt rgb48 {3}",
+                _startInfo.Arguments = string.Format("-f image2pipe -i - -vcodec libx264 -vf \"scale = trunc(iw / 2) * 2:trunc(ih / 2) * 2\" {1}",
+                    Fps,
+                    GifFileName);
+                _ffmpeg.Start();
+                BinaryWriter bw = new BinaryWriter(_ffmpeg.StandardInput.BaseStream);
+                for (int i = 0; i < Jpgs.Count; i++)
+                {
+                    bw.Write(Jpgs[i], 0, Jpgs[i].Length);
+                }
+                bw.Close();
+            }
+
+            //输出ffmpeg输出的结果（gif的信息而不是gif文件本身）
+            string output = _ffmpeg.StandardError.ReadToEnd();
+            StreamWriter fs = new StreamWriter(File.Create("log.txt"));
+            fs.Write(output);
+            fs.Close();
+            _ffmpeg.WaitForExit();
+        }
+
         private void Record()
         {
             Bitmap bmp;
@@ -301,10 +359,19 @@ namespace ScreenToGif
             while (IsRecording)
             {
                 bmp = ScreenShot(TargetArea, HasMouse);
-                ms = new MemoryStream();
-                bmp.Save(ms, ImageFormat.Jpeg);
-                Jpgs.Add(ms.ToArray());
-                bmp.Dispose();
+                if (SaveScreenShotToLocal)
+                {
+                    bmp.Save(_tempFilesDirectory + @"\" + i + ".jpg", ImageFormat.Jpeg);
+                    bmp.Dispose();
+                }
+                else
+                {
+                    ms = new MemoryStream();
+                    bmp.Save(ms, ImageFormat.Jpeg);
+                    Jpgs.Add(ms.ToArray());
+                    //不要dispose，图片会丢失内容，比如已经被画上去了的鼠标
+                    //bmp.Dispose();
+                }
 
                 i++;
                 Thread.Sleep(1000 / Fps);
@@ -351,6 +418,28 @@ namespace ScreenToGif
             Height = int.Parse(match.Value.Split('x')[1]);
             match = Regex.Match(output, "[0-9.]+ fps");
             Fps = (int)Math.Round(double.Parse(match.Value.Split(' ')[0]));
+        }
+
+        private void ClearFolder(string directory)
+        {
+            DirectoryInfo fileInfo = new DirectoryInfo(directory);
+            fileInfo.Attributes = FileAttributes.Normal & FileAttributes.Directory;
+            File.SetAttributes(directory, FileAttributes.Normal);
+            if (Directory.Exists(directory))
+            {
+                foreach (string f in Directory.GetFileSystemEntries(directory))
+                {
+                    if (File.Exists(f))
+                    {
+                        File.Delete(f);
+                    }
+                    else
+                    {
+                        ClearFolder(f);
+                    }
+                }
+                Directory.Delete(directory);
+            }
         }
     }
 }

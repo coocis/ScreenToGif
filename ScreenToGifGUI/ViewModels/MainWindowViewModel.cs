@@ -12,6 +12,7 @@ namespace ScreenToGifGUI.ViewModels
     {
         private int _fps;
         private bool _hasMouse;
+        private bool _generateVideo;
 
         public int Fps
         {
@@ -38,6 +39,20 @@ namespace ScreenToGifGUI.ViewModels
             {
                 _hasMouse = value;
                 OnPropertyChanged("HasMouse");
+            }
+        }
+
+        public bool GenerateVideo
+        {
+            get
+            {
+                return _generateVideo;
+            }
+
+            set
+            {
+                _generateVideo = value;
+                OnPropertyChanged("GenerateVideo");
             }
         }
 

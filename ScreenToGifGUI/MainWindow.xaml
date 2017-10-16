@@ -13,8 +13,8 @@
         <ViewModels:MainWindowViewModel Fps="5"/>
     </Window.DataContext>
     <Window.Resources>
-        <ObjectDataProvider MethodName="GetValidValuesFromKeys" ObjectType="{x:Type local:DataProvider}" x:Key="KeysEnumType">
-        </ObjectDataProvider>
+        <AlternationConverter x:Key="AlternationConverter"/>
+        <ObjectDataProvider MethodName="GetValidValuesFromKeys" ObjectType="{x:Type local:DataProvider}" x:Key="KeysEnumType"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -32,5 +32,6 @@
         <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="56,136,0,0" TextWrapping="Wrap" Text="Ctrl + Alt + " VerticalAlignment="Top"/>
         <ComboBox x:Name="recordHotkeyComboBox" HorizontalAlignment="Left" Margin="139,136,0,0" VerticalAlignment="Top" Width="77" SelectionChanged="recordHotkeyComboBox_SelectionChanged" DataContext="{Binding Source={StaticResource KeysEnumType}}" ItemsSource="{Binding Mode=OneWay}" Grid.ColumnSpan="2"/>
         <TextBox x:Name="githubTextBox" IsReadOnly="True" HorizontalAlignment="Left" Height="18" Margin="0,293,0,0" TextWrapping="Wrap" Text="https://github.com/coocis/ScreenToGif" VerticalAlignment="Top" Width="253" Grid.ColumnSpan="2" BorderThickness="0,1,0,0"/>
+        <CheckBox x:Name="generateVideoCheckBox" Content="Generate Video(MP4, 25FPS)" HorizontalAlignment="Left" Margin="54,262,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="149" IsChecked="{Binding GenerateVideo}" Checked="generateVideoCheckBox_Checked" Unchecked="generateVideoCheckBox_Unchecked"/>
     </Grid>
 </Window>

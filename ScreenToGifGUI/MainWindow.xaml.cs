@@ -96,6 +96,26 @@ namespace ScreenToGifGUI
                 bitmap.Save(sfd.FileName, ImageFormat.Jpeg);
             }
         }
+
+        private void GenerateVideo(List<byte[]> images, int fps, int width, int height)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "*MP4文件(*.mp4)|*.mp4";
+            sfd.FileName = "video";
+            sfd.AddExtension = false;
+            sfd.RestoreDirectory = true;
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                File.Delete(sfd.FileName);
+                _stg.Fps = _viewModel.Fps;
+                _stg.GifFileName = sfd.FileName;
+                _stg.Jpgs = images;
+                _stg.Width = width;
+                _stg.Height = height;
+                _stg.JpgsToVideo();
+                //Close();
+            }
+        }
         
         private void SetBorder(Rectangle rect)
         {
@@ -129,8 +149,15 @@ namespace ScreenToGifGUI
         private void StopRecord()
         {
             _stg.StopRecord();
-            ModifyWindow mw = new ModifyWindow(_stg.Jpgs, _stg.Fps, _targetBorder.Width, _targetBorder.Height);
-            mw.Show();
+            if (_viewModel.GenerateVideo)
+            {
+                GenerateVideo(_stg.Jpgs, _stg.Fps, _targetBorder.Width, _targetBorder.Height);
+            }
+            else
+            {
+                ModifyWindow mw = new ModifyWindow(_stg.Jpgs, _stg.Fps, _targetBorder.Width, _targetBorder.Height);
+                mw.Show();
+            }
         }
 
         private void StartOrStopRecord()
@@ -188,6 +215,17 @@ namespace ScreenToGifGUI
             {
                 MessageBox.Show("This hotkey has been occupied! Please select another one.");
             }
+        }
+
+        private void generateVideoCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _viewModel.Fps = 25;
+            _stg.SaveScreenShotToLocal = true;
+        }
+
+        private void generateVideoCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _stg.SaveScreenShotToLocal = false;
         }
     }
 }
